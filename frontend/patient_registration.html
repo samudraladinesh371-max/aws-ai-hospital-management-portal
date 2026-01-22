@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Patient Registration</h1>
+        <p class="subtitle">Please fill in all required fields to register</p>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="registrationForm">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <div class="section-title">📋 Basic Information</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_name">First Name <span class="required">*</span></label>
+                        <input type="text" id="first_name" name="first_name" required 
+                               placeholder="Enter first name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">Last Name <span class="required">*</span></label>
+                        <input type="text" id="last_name" name="last_name" required 
+                               placeholder="Enter last name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" required 
+                               placeholder="+91-XXXXXXXXXX">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="0" max="150" 
+                               placeholder="Enter age">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" 
+                               placeholder="patient@example.com">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appointment Details -->
+            <div class="form-section">
+                <div class="section-title">📅 Appointment Details</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="doctor_id">Doctor <span class="required">*</span></label>
+                        <select id="doctor_id" name="doctor_id" required>
+                            <option value="">-- Select Doctor --</option>
+                        </select>
+                        <div class="helper-text">Choose from available doctors</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment_date">Appointment Date <span class="required">*</span></label>
+                        <input type="date" id="appointment_date" name="appointment_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment_time">Appointment Time <span class="required">*</span></label>
+                        <input type="time" id="appointment_time" name="appointment_time" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="appointment_reason">Reason for Visit <span class="required">*</span></label>
+                        <textarea id="appointment_reason" name="appointment_reason" rows="3" required
+                                  placeholder="Describe your symptoms or reason for appointment"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                ✅ Book Appointment
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // ============================================
+        // Configuration
+        // ============================================
+        const LAMBDA_API_URL = "https://torzcvk6jljunjn7hocyotpnxm0stswm.lambda-url.us-east-1.on.aws/";
+        
+        // ============================================
+        // Load Available Doctors on Page Load
+        // ============================================
+        async function loadDoctors() {
+            try {
+                console.log('Fetching available doctors...');
+                
+                const response = await fetch(LAMBDA_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ role: 'get_doctors' })
+                });
+                
+                const result = await response.json();
+                console.log('Doctors response:', result);
+                
+                if (response.ok && result.doctors) {
+                    const doctorSelect = document.getElementById('doctor_id');
+                    
+                    result.doctors.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.doctor_id;
+                        option.textContent = `${doctor.name} - ${doctor.specialization}`;
+                        doctorSelect.appendChild(option);
+                    });
+                    
+                    console.log(`Loaded ${result.doctors.length} doctors`);
+                }
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+                showMessage('error', '⚠️ Could not load doctors list. Please refresh the page.');
+            }
+        }
+        
+        // Load doctors when page loads
+        window.addEventListener('DOMContentLoaded', loadDoctors);
+        
+        // ============================================
+        // Set minimum date to today
+        // ============================================
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('appointment_date').setAttribute('min', today);
+        
+        // ============================================
+        // Form Submission
+        // ============================================
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {
+                role: 'patient'  // ⭐ THIS IS THE KEY FIX - Adding the role field
+            };
+            
+            formData.forEach((value, key) => {
+                data[key] = value.trim();
+            });
+            
+            // Validation
+            if (!data.first_name || !data.last_name || !data.phone || 
+                !data.doctor_id || !data.appointment_date || 
+                !data.appointment_time || !data.appointment_reason) {
+                showMessage('error', '⚠️ Please fill in all required fields');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Booking Appointment...';
+            messageDiv.style.display = 'none';
+            
+            try {
+                console.log('Submitting appointment data:', data);
+                
+                const response = await fetch(LAMBDA_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                if (!response.ok) {
+                    throw new Error(result.error || result.message || 'Appointment booking failed');
+                }
+                
+                // Success
+                showMessage('success', 
+                    `✅ ${result.message || 'Appointment booked successfully!'}<br>
+                    <small>Patient ID: ${result.patient_id} | Name: ${data.first_name} ${data.last_name}</small>`
+                );
+                
+                // Reset form after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('registrationForm').reset();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Booking error:', error);
+                
+                let errorMessage = '❌ Appointment Booking Failed<br>';
+                
+                if (error.message.includes('Duplicate entry')) {
+                    errorMessage += 'This appointment slot may already be taken.';
+                } else if (error.message.includes('connect')) {
+                    errorMessage += 'Cannot connect to the server. Please check your connection.';
+                } else if (error.message.includes('Missing field')) {
+                    errorMessage += 'Please fill in all required fields.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showMessage('error', errorMessage);
+                
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Book Appointment';
+            }
+        });
+        
+        // ============================================
+        // Show Message Function
+        // ============================================
+        function showMessage(type, message) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = message;
+            messageDiv.style.display = 'block';
+            
+            // Scroll to message
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide error messages after 5 seconds
+            if (type === 'error') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // ============================================
+        // Phone number formatting
+        // ============================================
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            e.target.value = value;
+        });
+        
+        console.log('Patient Registration Form initialized');
+        console.log('API URL:', LAMBDA_API_URL);
+    </script>
+</body>
+</html>

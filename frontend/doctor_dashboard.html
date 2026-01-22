@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Doctor Dashboard</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+h1 { text-align: center; margin-bottom: 30px; }
+label { font-weight: 600; display: block; margin-bottom: 8px; }
+select, input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 14px;
+}
+th {
+    background: #667eea;
+    color: white;
+}
+.loading { text-align: center; padding: 20px; }
+.error { background: #ffebee; padding: 15px; }
+.no-data { text-align: center; padding: 20px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>👨‍⚕️ Doctor Dashboard</h1>
+
+<label>Select Doctor</label>
+<select id="doctor_id">
+    <option>Loading doctors...</option>
+</select>
+
+<label>Appointment Date</label>
+<input type="date" id="date">
+
+<button onclick="loadAppointments()">Load Appointments</button>
+
+<div id="appointments"></div>
+
+</div>
+
+<script>
+const API_URL = "https://torzcvk6jljunjn7hocyotpnxm0stswm.lambda-url.us-east-1.on.aws/";
+
+document.getElementById("date").valueAsDate = new Date();
+
+/* ===============================
+   LOAD DOCTORS
+================================ */
+async function loadDoctors() {
+    const select = document.getElementById("doctor_id");
+
+    const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "get_doctors" })
+    });
+
+    const data = await res.json();
+
+    select.innerHTML = `<option value="">-- Select Doctor --</option>`;
+
+    data.doctors.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.doctor_id;
+        opt.textContent = `${d.name} (${d.specialization})`;
+        select.appendChild(opt);
+    });
+}
+
+async function loadAppointments() {
+    const doctorId = document.getElementById("doctor_id").value;
+    const date = document.getElementById("date").value;
+    const div = document.getElementById("appointments");
+
+    if (!doctorId || !date) {
+        div.innerHTML = `<div class="error">Select doctor and date</div>`;
+        return;
+    }
+
+    const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            role: "doctor",
+            doctor_id: doctorId,
+            date: date
+        })
+    });
+
+    const data = await res.json();
+
+    if (!data.appointments || data.appointments.length === 0) {
+        div.innerHTML = `<div class="no-data">No appointments</div>`;
+        return;
+    }
+
+    let html = `<table>
+        <tr><th>Time</th><th>Patient</th><th>Phone</th><th>Reason</th></tr>`;
+
+    data.appointments.forEach(a => {
+        html += `
+        <tr>
+            <td>${a.time}</td>
+            <td>${a.patient_name}</td>
+            <td>${a.phone}</td>
+            <td>${a.reason}</td>
+        </tr>`;
+    });
+
+    html += `</table>`;
+    div.innerHTML = html;
+}
+
+window.onload = () => {
+    loadDoctors();
+    document.getElementById("loadBtn")
+        .addEventListener("click", loadAppointments);
+};
+
+</script>
+
+</body>
+</html>

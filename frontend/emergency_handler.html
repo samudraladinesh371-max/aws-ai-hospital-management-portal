@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Emergency Handler Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e74c3c;
+        }
+        
+        .header h1 {
+            color: #e74c3c;
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .emergency-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .search-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .search-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .search-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+        
+        select, input, textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card h4 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .doctor-card {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #e74c3c;
+        }
+        
+        .doctor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        
+        .doctor-info h3 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .specialization {
+            color: #e74c3c;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .doctor-details {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .availability-schedule {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .availability-schedule h4 {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .time-slot {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #e74c3c;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .no-doctors {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-doctors-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #e74c3c;
+        }
+        
+        .booking-form {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .booking-form input,
+        .booking-form select,
+        .booking-form textarea {
+            width: 100%;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .doctors-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                🚨 Browse Doctors by Specialty
+                <span class="emergency-badge">LIVE</span>
+            </h1>
+            <p style="color: #666; margin-top: 10px;">Manage emergency cases and book urgent appointments</p>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="search-section">
+            <h3>🔍 Find Available Doctors</h3>
+            <div class="search-controls">
+                <div class="form-group">
+                    <label for="daySelect">Select Day</label>
+                    <select id="daySelect">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specializationFilter">Filter by Specialization</label>
+                    <select id="specializationFilter">
+                        <option value="">All Specializations</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Pediatrics">Pediatrics</option>
+                        <option value="Orthopedics">Orthopedics</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Emergency Medicine">Emergency Medicine</option>
+                        <option value="Critical Care">Critical Care</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="loadAvailableDoctors()">
+                    🔍 Search Doctors
+                </button>
+            </div>
+        </div>
+        
+        <div class="stats" id="statsSection" style="display: none;">
+            <div class="stat-card">
+                <h4>Available Doctors</h4>
+                <div class="number" id="availableCount">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                <h4>Current Day</h4>
+                <div class="number" style="font-size: 20px;" id="currentDay">-</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                <h4>Emergency Status</h4>
+                <div class="number" style="font-size: 20px;">ACTIVE</div>
+            </div>
+        </div>
+        
+        <div id="doctorsContainer"></div>
+    </div>
+    
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🚨 Book Emergency Appointment</h2>
+                <span class="close" onclick="closeBookingModal()">&times;</span>
+            </div>
+            
+            <form id="bookingForm" class="booking-form">
+                <div class="form-group">
+                    <label>Doctor: <span id="modalDoctorName" style="color: #e74c3c; font-weight: bold;"></span></label>
+                    <input type="hidden" id="modalDoctorId">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientName">Patient Name <span class="required">*</span></label>
+                    <input type="text" id="patientName" required placeholder="Enter patient full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientPhone">Patient Phone <span class="required">*</span></label>
+                    <input type="tel" id="patientPhone" required placeholder="+91-XXXXXXXXXX">
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentDate">Appointment Date <span class="required">*</span></label>
+                    <input type="date" id="appointmentDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appointmentTime">Appointment Time <span class="required">*</span></label>
+                    <input type="time" id="appointmentTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="emergencyReason">Emergency Reason <span class="required">*</span></label>
+                    <textarea id="emergencyReason" required placeholder="Describe the emergency situation in detail..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">
+                        🚨 Book Emergency Appointment
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="closeBookingModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // Configuration
+        // ============================================
+        const LAMBDA_API_URL = "https://torzcvk6jljunjn7hocyotpnxm0stswm.lambda-url.us-east-1.on.aws/";
+        
+        // Set current day on load
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const today = days[new Date().getDay()];
+        document.getElementById('daySelect').value = today;
+        document.getElementById('appointmentDate').valueAsDate = new Date();
+        
+        // ============================================
+        // Load Available Doctors
+        // ============================================
+        async function loadAvailableDoctors() {
+            const day = document.getElementById('daySelect').value;
+            const specialization = document.getElementById('specializationFilter').value;
+            const container = document.getElementById('doctorsContainer');
+            const statsSection = document.getElementById('statsSection');
+            
+            container.innerHTML = '<div class="loading">Loading available doctors from database</div>';
+            statsSection.style.display = 'none';
+            
+            try {
+                console.log('Fetching doctors for:', { day, specialization });
+                
+                const response = await fetch(LAMBDA_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        role: 'get_emergency_doctors',
+                        day: day,
+                        specialization: specialization || null
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                displayDoctors(data, day, specialization);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `
+                    <div class="message error">
+                        <strong>❌ Error Loading Doctors</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================
+        // Display Doctors
+        // ============================================
+        function displayDoctors(data, selectedDay, specializationFilter) {
+            const container = document.getElementById('doctorsContainer');
+            const statsSection = document.getElementById('statsSection');
+            const availableDoctors = data.available_doctors || [];
+            
+            // Update stats
+            document.getElementById('availableCount').textContent = availableDoctors.length;
+            document.getElementById('currentDay').textContent = selectedDay;
+            statsSection.style.display = 'grid';
+            
+            // Display doctors
+            if (availableDoctors.length === 0) {
+                container.innerHTML = `
+                    <div class="no-doctors">
+                        <div class="no-doctors-icon">👨‍⚕️</div>
+                        <h3>No Doctors Available</h3>
+                        <p>No doctors found for ${selectedDay}${specializationFilter ? ` in ${specializationFilter}` : ''}</p>
+                        <p style="margin-top: 10px;">Try selecting a different day or specialization</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const doctorsHTML = availableDoctors.map(doctor => {
+                return `
+                    <div class="doctor-card">
+                        <div class="doctor-header">
+                            <div class="doctor-info">
+                                <h3>👨‍⚕️ ${doctor.name}</h3>
+                                <div class="specialization">${doctor.specialization}</div>
+                            </div>
+                            <span class="status-badge">
+                                ${doctor.availability_status || 'AVAILABLE'}
+                            </span>
+                        </div>
+                        
+                        <div class="doctor-details">
+                            <div class="detail-row">
+                                <span class="detail-icon">🆔</span>
+                                <strong>ID:</strong>&nbsp;${doctor.doctor_id}
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-icon">📞</span>
+                                <strong>Phone:</strong>&nbsp;${doctor.phone || 'N/A'}
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-icon">📧</span>
+                                <strong>Email:</strong>&nbsp;${doctor.email || 'N/A'}
+                            </div>
+                        </div>
+                        
+                        <div class="availability-schedule">
+                            <h4>⏰ Schedule for ${selectedDay}</h4>
+                            <div>
+                                <span class="time-slot">Available All Day</span>
+                            </div>
+                        </div>
+                        
+                        <div class="actions">
+                            <button class="btn btn-success" onclick='openBookingModal(${JSON.stringify(doctor.doctor_id)}, ${JSON.stringify(doctor.name)}, ${JSON.stringify(doctor.specialization)})' style="flex: 1;">
+                                🚨 Book Emergency Appointment
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = `<div class="doctors-grid">${doctorsHTML}</div>`;
+        }
+        
+        // ============================================
+        // Helper Functions
+        // ============================================
+        function formatTime(time) {
+            if (!time) return 'N/A';
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+        
+        // ============================================
+        // Booking Modal Functions
+        // ============================================
+        function openBookingModal(doctorId, doctorName, specialization) {
+            document.getElementById('modalDoctorId').value = doctorId;
+            document.getElementById('modalDoctorName').textContent = `${doctorName} (${specialization})`;
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+        
+        function closeBookingModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            document.getElementById('bookingForm').reset();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target === modal) {
+                closeBookingModal();
+            }
+        }
+        
+        // ============================================
+        // Book Emergency Appointment
+        // ============================================
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const doctorId = document.getElementById('modalDoctorId').value;
+            const patientName = document.getElementById('patientName').value;
+            const patientPhone = document.getElementById('patientPhone').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const appointmentTime = document.getElementById('appointmentTime').value;
+            const emergencyReason = document.getElementById('emergencyReason').value;
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Booking...';
+            
+            try {
+                console.log('Booking emergency appointment:', {
+                    doctorId,
+                    patientName,
+                    patientPhone,
+                    appointmentDate,
+                    appointmentTime,
+                    emergencyReason
+                });
+                
+                const response = await fetch(LAMBDA_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        role: 'book_emergency',
+                        doctor_id: doctorId,
+                        patient_name: patientName,
+                        patient_phone: patientPhone,
+                        appointment_date: appointmentDate,
+                        appointment_time: appointmentTime,
+                        emergency_reason: emergencyReason,
+                        status: 'SCHEDULED'
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Booking result:', result);
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Booking failed');
+                }
+                
+                showMessage('success', 
+                    `✅ ${result.message}<br>
+                    <small>Emergency ID: ${result.emergency_id} | Patient: ${patientName}</small>`
+                );
+                closeBookingModal();
+                
+            } catch (error) {
+                console.error('Booking error:', error);
+                showMessage('error', `❌ Booking Failed: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚨 Book Emergency Appointment';
+            }
+        });
+        
+        // ============================================
+        // Show Message
+        // ============================================
+        function showMessage(type, message) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = message;
+            messageDiv.style.display = 'block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // ============================================
+        // Phone number formatting
+        // ============================================
+        document.getElementById('patientPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            e.target.value = value;
+        });
+        
+        // ============================================
+        // Auto-load on page load
+        // ============================================
+        window.addEventListener('load', function() {
+            loadAvailableDoctors();
+        });
+        
+        console.log('Emergency Handler Dashboard initialized');
+        console.log('API URL:', LAMBDA_API_URL);
+    </script>
+</body>
+</html>
